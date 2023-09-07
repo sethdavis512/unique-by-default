@@ -1,4 +1,4 @@
-import type { User, Entry, Mood } from "@prisma/client";
+import type { User, Entry } from "@prisma/client";
 
 import { prisma } from "~/db.server";
 
@@ -11,35 +11,26 @@ export function getEntry({
   userId: User["id"];
 }) {
   return prisma.entry.findFirst({
-    select: { id: true, body: true, title: true, moods: true },
+    select: { id: true, body: true, title: true },
     where: { id, userId },
   });
 }
 
-export function getEntryListItems({ userId }: { userId: User["id"] }) {
-  return prisma.entry.findMany({
-    where: { userId },
-    select: { id: true, title: true, body: true, createdAt: true },
-    orderBy: { updatedAt: "desc" },
-  });
+export function getAllMoods() {
+  return prisma.mood.findMany();
 }
 
 export function createEntry({
   body,
   title,
   userId,
-  moodArr,
 }: Pick<Entry, "body" | "title"> & {
   userId: User["id"];
-  moodArr: { id: string }[]
 }) {
   return prisma.entry.create({
     data: {
       title,
       body,
-      moods: {
-        connect: moodArr
-      },
       user: {
         connect: {
           id: userId,

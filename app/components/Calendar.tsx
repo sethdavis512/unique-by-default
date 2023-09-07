@@ -5,7 +5,9 @@ import {
   endOfMonth,
   format,
   getDay,
+  getMonth,
   isEqual,
+  isFuture,
   isSameDay,
   isSameMonth,
   isToday,
@@ -44,7 +46,12 @@ export default function CalendarIndexRoute({
 }) {
   const today = startOfToday();
   const [selectedDay, setSelectedDay] = useState(today);
+
   const [currentMonth, setCurrentMonth] = useState(format(today, "MMM-yyyy"));
+  const setSelectedDayToToday = () => {
+    setCurrentMonth(format(today, "MMM-yyyy"));
+    setSelectedDay(today);
+  };
   const firstDayCurrentMonth = parse(currentMonth, "MMM-yyyy", new Date());
 
   const days = eachDayOfInterval({
@@ -69,9 +76,9 @@ export default function CalendarIndexRoute({
   return (
     <div className="">
       <div className="mx-auto max-w-md md:max-w-6xl">
-        <div className="md:grid grid-cols-1 xl:grid-cols-2 xl:divide-x xl:divide-zinc-200">
-          <div className="pt-8 px-4 xl:px-10">
-            <div className="flex items-center">
+        <div className="grid-cols-1 md:grid xl:grid-cols-2 xl:divide-x xl:divide-zinc-200">
+          <div className="px-4 pt-8 xl:px-10">
+            <div className="mb-4 flex items-center">
               <h2 className="flex-auto text-3xl font-semibold text-zinc-900">
                 {format(firstDayCurrentMonth, "MMMM yyyy")}
               </h2>
@@ -98,6 +105,14 @@ export default function CalendarIndexRoute({
                 />
               </button>
             </div>
+            <div>
+              <button
+                className="rounded border border-green-600 py-2 px-4 text-green-600 hover:bg-zinc-200 active:bg-zinc-200"
+                onClick={setSelectedDayToToday}
+              >
+                Today
+              </button>
+            </div>
             <div className="mt-10 grid grid-cols-7 text-center text-xs leading-6 text-zinc-900">
               <div className="text-xl font-bold">S</div>
               <div className="text-xl font-bold">M</div>
@@ -120,29 +135,18 @@ export default function CalendarIndexRoute({
                   <button
                     type="button"
                     onClick={() => setSelectedDay(day)}
+                    disabled={isFuture(day)}
                     className={classNames(
                       isEqual(day, selectedDay) && "text-white",
-                      !isEqual(day, selectedDay) &&
-                        isToday(day) &&
-                        "text-green-800",
-                      !isEqual(day, selectedDay) &&
-                        !isToday(day) &&
-                        isSameMonth(day, firstDayCurrentMonth) &&
-                        "text-zinc-900",
-                      !isEqual(day, selectedDay) &&
-                        !isToday(day) &&
-                        !isSameMonth(day, firstDayCurrentMonth) &&
-                        "text-zinc-400",
-                      isEqual(day, selectedDay) &&
-                        isToday(day) &&
-                        "bg-green-800",
-                      isEqual(day, selectedDay) &&
-                        !isToday(day) &&
-                        "bg-zinc-900",
+                      !isEqual(day, selectedDay) && isToday(day) && "text-amber-500",
+                      !isEqual(day, selectedDay) && !isToday(day) && isSameMonth(day, firstDayCurrentMonth) && "text-zinc-700",
+                      !isEqual(day, selectedDay) && !isToday(day) && !isSameMonth(day, firstDayCurrentMonth) && "text-zinc-700",
+                      !isEqual(day, selectedDay) && isFuture(day) && "text-zinc-300",
+                      isEqual(day, selectedDay) && isToday(day) && "bg-green-800",
+                      isEqual(day, selectedDay) && !isToday(day) && "bg-zinc-900",
                       !isEqual(day, selectedDay) && "hover:bg-zinc-200",
-                      (isEqual(day, selectedDay) || isToday(day)) &&
-                        "font-semibold",
-                      "mx-auto flex h-4 w-4 md:h-10 md:w-10 items-center justify-center rounded-full p-4 md:p-0 text-sm md:text-xl"
+                      (isEqual(day, selectedDay) || isToday(day)) && "font-semibold",
+                      "mx-auto flex h-4 w-4 items-center justify-center rounded-full p-4 text-sm md:h-10 md:w-10 md:p-0 md:text-xl"
                     )}
                   >
                     <time dateTime={format(day, "yyyy-MM-dd")}>
@@ -162,7 +166,7 @@ export default function CalendarIndexRoute({
             </div>
           </div>
           {/* ===== List of entries ===== */}
-          <section className="mt-12 pt-8 px-4 md:mt-0 xl:px-10">
+          <section className="mt-12 px-4 pt-8 md:mt-0 xl:px-10">
             <h2 className="mb-4 font-semibold text-zinc-900">
               Entries for{" "}
               <time dateTime={format(selectedDay, "yyyy-MM-dd")}>
@@ -185,9 +189,7 @@ export default function CalendarIndexRoute({
                 </NavLink>
               ))
             ) : (
-              <p className="mt-6 text-2xl text-zinc-400">
-                No entries found.
-              </p>
+              <p className="mt-6 text-2xl text-zinc-400">No entries found.</p>
             )}
           </section>
         </div>

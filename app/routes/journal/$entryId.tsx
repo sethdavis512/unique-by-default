@@ -59,7 +59,24 @@ export default function EntryDetailsPage() {
       </div>
       <hr className="my-6 block border-zinc-300" />
       <h3 className="text-3xl font-bold">{data.entry.title}</h3>
-      <div className="py-6 prose" dangerouslySetInnerHTML={{ __html: marked.parse(data.entry.body) }}></div>
+      <div className="flex gap-3">
+          <div
+            className="prose py-4 flex-grow"
+            dangerouslySetInnerHTML={{ __html: marked.parse(data.entry.body) }}
+          ></div>
+        <div className="border border-gray-400 rounded p-4">
+          {data.entry.moods && data.entry.moods.length > 0 && (
+            <>
+              <strong>Moods experienced:</strong>
+              <ul>
+                {data.entry.moods.map((m) => (
+                  <li key={m.id}>{m.name}</li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
